@@ -587,11 +587,20 @@ feat: phase 1 - authentication and user management
 - [x] ✅ Commit `phase-2` → tag → push ke remote
 
 ### Fase 3 — Keranjang & Checkout (Minggu 6)
-- [ ] **BE**: Keranjang, integrasi ongkir, checkout preview, pembuatan order, reservasi stok (optimistic locking)
-- [ ] **FE**: Halaman keranjang, keranjang guest (`localStorage`) + merge saat login
-- [ ] **FE**: Alur checkout multi-langkah (alamat → kurir → ringkasan)
+- [x] **BE**: Keranjang, integrasi ongkir, checkout preview, pembuatan order, reservasi stok (optimistic locking)
+- [x] **FE**: Halaman keranjang, keranjang guest (`localStorage`) + merge saat login
+- [x] **FE**: Alur checkout multi-langkah (alamat → kurir → ringkasan)
 
-- [ ] ✅ Commit `phase-3` → tag → push ke remote
+**Catatan implementasi Fase 3**
+- Reservasi stok memakai satu `UPDATE` bersyarat (`quantity - reserved_quantity >= qty`) yang menaikkan `version`, bukan memuat entity lalu menyimpannya. Hasilnya atomik: tidak ada oversell dan tidak ada konflik palsu antar pembeli; terbukti oleh test 8 pembeli berebut 3 unit.
+- Seluruh checkout (reservasi, order, item, kosongkan keranjang) satu transaksi; gagal di satu item membatalkan semuanya. Reservasi dilakukan berurutan berdasarkan `variant_id` agar tidak deadlock.
+- Ongkir memakai `ZoneBasedShippingProvider` (tarif tetap per zona asal/Jawa/luar Jawa dan per kg), di balik antarmuka `ShippingRateProvider`. RajaOngkir/Biteship belum dihubungkan karena membutuhkan API key; cukup tambah implementasi baru. Harga ongkir selalu dihitung ulang di server.
+- Keranjang guest hanya menyimpan `variantId` dan jumlah di `localStorage`; harga dan stok diambil segar lewat `POST /public/cart/preview`. Saat login keranjang digabung lewat `/cart/merge` (jumlah dibatasi stok, item tak tersedia dilewati, tidak pernah gagal).
+- Order menyimpan snapshot nama, harga, dan alamat. Pembatalan oleh pelanggan melepas reservasi tepat satu kali (`OrderStatus` memvalidasi transisi).
+- Order berstatus `PENDING_PAYMENT` dan kedaluwarsa dalam 24 jam (`app.order.payment-window`); pembayaran Midtrans dan job pembatalan otomatis dikerjakan di Fase 4. Voucher (kolom `discount`) di Fase 5.
+- Jackson 3 menolak field primitif yang hilang, jadi field opsional di DTO memakai tipe wrapper (`Boolean`).
+
+- [x] ✅ Commit `phase-3` → tag → push ke remote
 
 ### Fase 4 — Pembayaran (Minggu 7)
 - [ ] **BE**: Integrasi Midtrans Snap (sandbox), webhook idempoten + verifikasi signature

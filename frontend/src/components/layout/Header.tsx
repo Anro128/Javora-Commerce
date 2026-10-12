@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { useLogout } from '@/features/auth/hooks'
 import { useAuthStore } from '@/features/auth/store'
+import { useCartCount } from '@/features/cart/hooks'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -69,6 +70,8 @@ function UserActions() {
 }
 
 export function Header() {
+  const cartCount = useCartCount()
+
   return (
     <header className="bg-background/95 sticky top-0 z-40 border-b backdrop-blur">
       <div className="container mx-auto flex h-16 items-center gap-6 px-4">
@@ -106,8 +109,17 @@ export function Header() {
 
         <div className="ml-auto flex items-center gap-1">
           <Button variant="ghost" size="icon" asChild>
-            <Link to="/cart" aria-label="Cart">
+            <Link
+              to="/cart"
+              aria-label={cartCount > 0 ? `Cart, ${cartCount} items` : 'Cart'}
+              className="relative"
+            >
               <ShoppingCartIcon />
+              {cartCount > 0 ? (
+                <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex min-w-5 items-center justify-center rounded-full px-1 text-[11px] leading-5 font-semibold">
+                  {cartCount > 99 ? '99+' : cartCount}
+                </span>
+              ) : null}
             </Link>
           </Button>
           <UserActions />

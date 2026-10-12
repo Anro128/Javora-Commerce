@@ -1,4 +1,5 @@
 import type { PageResponse } from '@/api/types'
+import type { Cart, CartLine } from '@/features/cart/types'
 import type { CategoryNode, ProductDetail, ProductSummary } from '@/features/catalog/types'
 
 export const categories: CategoryNode[] = [
@@ -60,4 +61,34 @@ export const sneakersDetail: ProductDetail = {
     { id: 101, sku: 'URB-41', name: 'Size 41', price: 549000, available: 3, inStock: true },
     { id: 102, sku: 'URB-42', name: 'Size 42', price: 599000, available: 20, inStock: true },
   ],
+}
+
+export function cartLine(overrides: Partial<CartLine> = {}): CartLine {
+  return {
+    variantId: 101,
+    productId: 10,
+    productName: 'Urban Runner Sneakers',
+    productSlug: 'urban-runner-sneakers',
+    variantName: 'Size 41',
+    sku: 'URB-41',
+    imageUrl: null,
+    unitPrice: 549000,
+    quantity: 1,
+    lineTotal: 549000,
+    weightGram: 800,
+    available: 10,
+    purchasable: true,
+    issue: null,
+    ...overrides,
+  }
+}
+
+export function cartOf(...lines: CartLine[]): Cart {
+  return {
+    items: lines,
+    subtotal: lines.reduce((total, line) => total + line.lineTotal, 0),
+    totalWeightGram: lines.reduce((total, line) => total + line.weightGram * line.quantity, 0),
+    itemCount: lines.reduce((total, line) => total + line.quantity, 0),
+    hasIssues: lines.some((line) => line.issue !== null),
+  }
 }

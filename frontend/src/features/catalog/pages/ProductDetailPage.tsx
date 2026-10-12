@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { useState } from 'react'
 import { PageSpinner } from '@/components/layout/PageSpinner'
 import { Button } from '@/components/ui/button'
@@ -6,12 +6,19 @@ import { ProductImage } from '@/features/catalog/components/ProductImage'
 import { useProduct } from '@/features/catalog/hooks'
 import type { ProductDetail } from '@/features/catalog/types'
 import { ApiError } from '@/api/client'
+import { MAX_LINE_QUANTITY } from '@/features/cart/guestCart'
+import { useAddToCart } from '@/features/cart/hooks'
+import { errorMessage } from '@/lib/form'
+import { toast } from 'sonner'
 import { formatRupiah } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 const LOW_STOCK_THRESHOLD = 5
 
 function ProductDetailView({ product }: { product: ProductDetail }) {
+  const navigate = useNavigate()
+  const addToCart = useAddToCart()
+  const [quantity, setQuantity] = useState(1)
   const [imageIndex, setImageIndex] = useState(0)
   const firstAvailable = product.variants.find((variant) => variant.inStock) ?? product.variants[0]
   const [variantId, setVariantId] = useState<number | undefined>(firstAvailable?.id)
@@ -19,6 +26,24 @@ function ProductDetailView({ product }: { product: ProductDetail }) {
   const variant = product.variants.find((candidate) => candidate.id === variantId)
   const price = variant?.price ?? product.price
   const image = product.images[imageIndex] ?? product.images[0]
+  const maxQuantity = Math.min(MAX_LINE_QUANTITY, variant?.available ?? 1)
+  const safeQuantity = Math.min(quantity, Math.max(maxQuantity, 1))
+
+  const handleAdd = () => {
+    if (!variant) {
+      return
+    }
+    addToCart.mutate(
+      { variantId: variant.id, quantity: safeQuantity },
+      {
+        onSuccess: () =>
+          toast.success(`${product.name} added to cart`, {
+            action: { label: 'View cart', onClick: () => navigate('/cart') },
+          }),
+        onError: (error) => toast.error(errorMessage(error) ?? 'Could not add to cart'),
+      },
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -105,6 +130,39 @@ function ProductDetailView({ product }: { product: ProductDetail }) {
           ) : (
             <p className="text-destructive text-sm">This product is currently unavailable.</p>
           )}
+
+          {variant ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-1" role="group" aria-label="Quantity">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label="Decrease quantity"
+                  disabled={safeQuantity <= 1}
+                  onClick={() => setQuantity(safeQuantity - 1)}
+                >
+                  −
+                </Button>
+                <span className="w-10 text-center font-medium" aria-live="polite">
+                  {safeQuantity}
+                </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label="Increase quantity"
+                  disabled={safeQuantity >= maxQuantity}
+                  onClick={() => setQuantity(safeQuantity + 1)}
+                >
+                  +
+                </Button>
+              </div>
+              <Button size="lg" disabled={!variant.inStock || addToCart.isPending} onClick={handleAdd}>
+                {variant.inStock ? 'Add to cart' : 'Out of stock'}
+              </Button>
+            </div>
+          ) : null}
 
           {product.description ? (
             <section aria-labelledby="product-description" className="flex flex-col gap-2">

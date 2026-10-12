@@ -4,6 +4,9 @@ import { RootLayout } from '@/components/layout/RootLayout'
 import { AccountLayout } from '@/features/account/pages/AccountLayout'
 import { AddressesPage } from '@/features/account/pages/AddressesPage'
 import { ProfilePage } from '@/features/account/pages/ProfilePage'
+import { CartPage } from '@/features/cart/pages/CartPage'
+import { CheckoutPage } from '@/features/checkout/pages/CheckoutPage'
+import { OrderDetailPage } from '@/features/checkout/pages/OrderDetailPage'
 import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { RegisterPage } from '@/features/auth/pages/RegisterPage'
@@ -65,6 +68,7 @@ export const routes: RouteObject[] = [
       { path: 'products', element: <ProductListPage /> },
       { path: 'products/:slug', element: <ProductDetailPage /> },
       { path: 'categories/:slug', element: <CategoryRedirectPage /> },
+      { path: 'cart', element: <CartPage /> },
       { path: 'login', element: <LoginPage /> },
       { path: 'register', element: <RegisterPage /> },
       { path: 'forgot-password', element: <ForgotPasswordPage /> },
@@ -73,6 +77,7 @@ export const routes: RouteObject[] = [
       {
         element: <ProtectedRoute />,
         children: [
+          { path: 'checkout', element: <CheckoutPage /> },
           {
             path: 'account',
             element: <AccountLayout />,
@@ -81,6 +86,7 @@ export const routes: RouteObject[] = [
               { path: 'addresses', element: <AddressesPage /> },
             ],
           },
+          { path: 'account/orders/:orderNumber', element: <OrderDetailPage /> },
         ],
       },
       { path: '*', element: <NotFoundPage /> },

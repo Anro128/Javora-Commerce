@@ -17,7 +17,7 @@ export function useAddresses() {
   return useQuery({ queryKey: ADDRESSES_KEY, queryFn: accountApi.fetchAddresses })
 }
 
-function useAddressMutation<TVariables>(mutationFn: (variables: TVariables) => Promise<unknown>) {
+function useAddressMutation<TVariables, TData>(mutationFn: (variables: TVariables) => Promise<TData>) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn,

@@ -1,16 +1,33 @@
 package com.javora.commerce.inventory;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
 	List<Inventory> findByVariantIdIn(Collection<Long> variantIds);
+
+	// A single conditional update keeps reservations atomic, so stock can never be oversold.
+	@Modifying(flushAutomatically = true, clearAutomatically = true)
+	@Query("""
+			update Inventory i
+			set i.reservedQuantity = i.reservedQuantity + :quantity, i.version = i.version + 1, i.updatedAt = :now
+			where i.variantId = :variantId and i.quantity - i.reservedQuantity >= :quantity""")
+	int reserve(@Param("variantId") Long variantId, @Param("quantity") int quantity, @Param("now") Instant now);
+
+	@Modifying(flushAutomatically = true, clearAutomatically = true)
+	@Query("""
+			update Inventory i
+			set i.reservedQuantity = i.reservedQuantity - :quantity, i.version = i.version + 1, i.updatedAt = :now
+			where i.variantId = :variantId and i.reservedQuantity >= :quantity""")
+	int release(@Param("variantId") Long variantId, @Param("quantity") int quantity, @Param("now") Instant now);
 
 	@Query("""
 			select distinct v.productId

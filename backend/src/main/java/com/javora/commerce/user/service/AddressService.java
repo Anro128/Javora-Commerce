@@ -40,7 +40,7 @@ public class AddressService {
 		addressMapper.apply(request, address);
 
 		// The first address always becomes the default one.
-		boolean makeDefault = request.defaultAddress() || existing == 0;
+		boolean makeDefault = Boolean.TRUE.equals(request.defaultAddress()) || existing == 0;
 		if (makeDefault) {
 			addressRepository.clearDefault(userId);
 		}
@@ -54,7 +54,7 @@ public class AddressService {
 		boolean wasDefault = address.isDefaultAddress();
 		addressMapper.apply(request, address);
 
-		if (request.defaultAddress() && !wasDefault) {
+		if (Boolean.TRUE.equals(request.defaultAddress()) && !wasDefault) {
 			addressRepository.clearDefault(userId);
 			address.setDefaultAddress(true);
 		} else {

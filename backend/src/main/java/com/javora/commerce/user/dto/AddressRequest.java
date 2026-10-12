@@ -37,5 +37,5 @@ public record AddressRequest(
 		@Size(max = 255, message = "Street address must be at most 255 characters")
 		String street,
 
-		boolean defaultAddress) {
+		Boolean defaultAddress) {
 }

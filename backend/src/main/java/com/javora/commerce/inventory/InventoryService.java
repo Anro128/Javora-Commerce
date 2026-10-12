@@ -3,6 +3,7 @@ package com.javora.commerce.inventory;
 import com.javora.commerce.common.exception.BusinessException;
 import com.javora.commerce.common.exception.ResourceNotFoundException;
 import com.javora.commerce.common.util.LikePattern;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -43,6 +45,21 @@ public class InventoryService {
 							.formatted(inventory.getReservedQuantity()));
 		}
 		inventory.setQuantity(quantity);
+	}
+
+	// Must run inside the caller's transaction so a failed order rolls every reservation back.
+	@Transactional(propagation = Propagation.MANDATORY)
+	public void reserve(Long variantId, int quantity) {
+		if (inventoryRepository.reserve(variantId, quantity, Instant.now()) == 0) {
+			throw new InsufficientStockException(variantId);
+		}
+	}
+
+	@Transactional(propagation = Propagation.MANDATORY)
+	public void release(Long variantId, int quantity) {
+		if (inventoryRepository.release(variantId, quantity, Instant.now()) == 0) {
+			throw new IllegalStateException("Cannot release %d units of variant %d".formatted(quantity, variantId));
+		}
 	}
 
 	@Transactional(readOnly = true)

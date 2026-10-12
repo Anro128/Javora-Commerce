@@ -71,6 +71,8 @@ The `dev` profile creates an admin account on first start.
 
 The `dev` profile also seeds a demo catalog (categories and products) when the database has no products. Product images are uploaded in the admin area and stored in MinIO.
 
+Shipping costs come from a built-in zone based tariff (`ZoneBasedShippingProvider`) until a live courier API is connected. Orders are created as `PENDING_PAYMENT` and reserve stock immediately; payment arrives in a later phase.
+
 Customers can register at http://localhost:5173/register. Verification and password reset emails appear in Mailpit.
 
 In production set `JWT_SECRET` (at least 32 characters), `AUTH_COOKIE_SECURE=true`, and `APP_BOOTSTRAP_ADMIN_EMAIL` / `APP_BOOTSTRAP_ADMIN_PASSWORD` for the first admin.
