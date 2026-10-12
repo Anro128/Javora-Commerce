@@ -68,7 +68,7 @@ Aplikasi e-commerce full-stack: backend **Spring Boot** (arsitektur *modular mon
 | Pembayaran | **Midtrans Snap.js** | Popup pembayaran |
 | Grafik admin | **Recharts** | Laporan penjualan |
 | Testing | **Vitest + React Testing Library**, **Playwright** (E2E) | |
-| Lint/format | ESLint + Prettier | |
+| Lint/format | oxlint + Prettier | Bawaan template Vite terbaru |
 
 ---
 
@@ -534,30 +534,37 @@ feat: phase 1 - authentication and user management
 
 ### Fase 0 — Fondasi (Minggu 1)
 **Repo & infrastruktur**
-- [ ] `git init`, tambahkan remote, inisialisasi monorepo (`backend/`, `frontend/`), `.gitignore`, `.editorconfig`, `.env.example`, README
-- [ ] Docker Compose (PostgreSQL, Redis, MinIO, Mailpit)
-- [ ] Setup CI (job backend & frontend)
+- [x] `git init`, tambahkan remote, inisialisasi monorepo (`backend/`, `frontend/`), `.gitignore`, `.editorconfig`, `.env.example`, README
+- [x] Docker Compose (PostgreSQL, Redis, MinIO, Mailpit)
+- [x] Setup CI (job backend & frontend)
 
 **Backend**
-- [ ] Proyek Spring Boot via Spring Initializr di `backend/`
-- [ ] Konfigurasi profil, Flyway, `BaseEntity` dengan auditing
-- [ ] `GlobalExceptionHandler`, format `ApiResponse`, OpenAPI
-- [ ] `frontend-maven-plugin` + `SpaForwardController` (build menghasilkan satu JAR)
+- [x] Proyek Spring Boot via Spring Initializr di `backend/`
+- [x] Konfigurasi profil, Flyway, `BaseEntity` dengan auditing
+- [x] `GlobalExceptionHandler`, format `ApiResponse`, OpenAPI
+- [x] `frontend-maven-plugin` (profile `-Pfrontend`) + fallback SPA (`SpaWebConfig`), build menghasilkan satu JAR
 
 **Frontend**
-- [ ] Proyek Vite + React + TypeScript di `frontend/`
-- [ ] Tailwind + shadcn/ui, ESLint + Prettier
-- [ ] Router, QueryClient, Axios instance, Vite proxy
-- [ ] Layout dasar (Header, Footer, AdminSidebar), script `gen:api`
+- [x] Proyek Vite + React + TypeScript di `frontend/`
+- [x] Tailwind + shadcn/ui, oxlint + Prettier
+- [x] Router, QueryClient, Axios instance, Vite proxy
+- [x] Layout dasar (Header, Footer, AdminSidebar), script `gen:api`
 
-- [ ] ✅ Commit `phase-0` → tag → push ke remote
+- [x] ✅ Commit `phase-0` → tag → push ke remote
 
 ### Fase 1 — Auth & User (Minggu 2–3)
-- [ ] **BE**: Register, login, JWT + refresh token (cookie httpOnly), role CUSTOMER/ADMIN
-- [ ] **BE**: Verifikasi email & reset password; profil & alamat
-- [ ] **FE**: Halaman login, register, lupa/reset password, verifikasi email
-- [ ] **FE**: `authStore`, interceptor refresh token, `ProtectedRoute` & `AdminRoute`
-- [ ] **FE**: Halaman profil & kelola alamat
+- [x] **BE**: Register, login, JWT + refresh token (cookie httpOnly), role CUSTOMER/ADMIN
+- [x] **BE**: Verifikasi email & reset password; profil & alamat
+- [x] **FE**: Halaman login, register, lupa/reset password, verifikasi email
+- [x] **FE**: `authStore`, interceptor refresh token, `ProtectedRoute` & `AdminRoute`
+- [x] **FE**: Halaman profil & kelola alamat
+
+**Catatan implementasi Fase 1**
+- JWT memakai Spring Security OAuth2 Resource Server (HS256, Nimbus), bukan `jjwt`; tidak perlu dependensi tambahan.
+- Refresh token disimpan sebagai hash SHA-256, dirotasi di setiap pemakaian, dan dipakai ulang di luar jeda 10 detik akan mencabut seluruh sesi pengguna.
+- Akun admin pertama dibuat otomatis lewat `app.bootstrap-admin.*` (di profil `dev`: `admin@javora.local` / `Admin12345`); di produksi isi lewat environment.
+- Tipe API frontend masih ditulis manual di `features/*/types.ts`; `gen:api` akan dipakai setelah DTO diberi anotasi `required` di OpenAPI.
+- Postgres Docker memakai port host **5433** karena port 5432 sering dipakai PostgreSQL lokal.
 
 - [ ] ✅ Commit `phase-1` → tag → push ke remote
 

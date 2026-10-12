@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body style="font-family: Arial, sans-serif; color: #111827; line-height: 1.5;">
+  <h2>Welcome to Javora, <span th:text="${name}">there</span>!</h2>
+  <p>Please confirm your email address to finish setting up your account.</p>
+  <p>
+    <a th:href="${link}" style="display: inline-block; padding: 10px 20px; background: #111827; color: #ffffff; text-decoration: none; border-radius: 6px;">
+      Verify email
+    </a>
+  </p>
+  <p>This link expires in 24 hours. If you did not create an account, you can ignore this email.</p>
+</body>
+</html>

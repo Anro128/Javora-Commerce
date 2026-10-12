@@ -13,3 +13,12 @@ management:
 logging:
   level:
     com.javora.commerce: DEBUG
+
+app:
+  auth:
+    jwt-secret: dev-only-secret-change-me-0123456789abcdef
+    cookie-secure: false
+  bootstrap-admin:
+    email: admin@javora.local
+    password: Admin12345
+    full-name: Javora Admin

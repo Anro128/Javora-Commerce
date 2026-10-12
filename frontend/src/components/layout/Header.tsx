@@ -1,7 +1,9 @@
-import { MenuIcon, ShoppingCartIcon, UserIcon } from 'lucide-react'
-import { Link, NavLink } from 'react-router'
+import { LayoutDashboardIcon, LogOutIcon, MenuIcon, ShoppingCartIcon, UserIcon } from 'lucide-react'
+import { Link, NavLink, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { useLogout } from '@/features/auth/hooks'
+import { useAuthStore } from '@/features/auth/store'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -11,8 +13,58 @@ const navItems = [
 
 function navClassName({ isActive }: { isActive: boolean }) {
   return cn(
-    'text-sm font-medium transition-colors hover:text-foreground',
+    'hover:text-foreground text-sm font-medium transition-colors',
     isActive ? 'text-foreground' : 'text-muted-foreground',
+  )
+}
+
+function UserActions() {
+  const navigate = useNavigate()
+  const status = useAuthStore((state) => state.status)
+  const user = useAuthStore((state) => state.user)
+  const logout = useLogout()
+
+  if (status === 'loading') {
+    return <div className="h-9 w-24" aria-hidden />
+  }
+
+  if (status === 'anonymous' || !user) {
+    return (
+      <>
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/login">Log in</Link>
+        </Button>
+        <Button size="sm" asChild className="hidden sm:inline-flex">
+          <Link to="/register">Sign up</Link>
+        </Button>
+      </>
+    )
+  }
+
+  return (
+    <>
+      {user.role === 'ADMIN' ? (
+        <Button variant="ghost" size="icon" asChild>
+          <Link to="/admin" aria-label="Admin dashboard">
+            <LayoutDashboardIcon />
+          </Link>
+        </Button>
+      ) : null}
+      <Button variant="ghost" size="icon" asChild>
+        <Link to="/account" aria-label="Account">
+          <UserIcon />
+        </Link>
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label="Log out"
+        disabled={logout.isPending}
+        onClick={() => logout.mutate(undefined, { onSettled: () => navigate('/') })}
+      >
+        <LogOutIcon />
+      </Button>
+    </>
   )
 }
 
@@ -58,11 +110,7 @@ export function Header() {
               <ShoppingCartIcon />
             </Link>
           </Button>
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/account" aria-label="Account">
-              <UserIcon />
-            </Link>
-          </Button>
+          <UserActions />
         </div>
       </div>
     </header>

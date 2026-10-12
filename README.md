@@ -34,7 +34,7 @@ javora-commerce/
    ```bash
    cp .env.example .env
    ```
-2. Start the infrastructure (PostgreSQL, Redis, MinIO, Mailpit):
+2. Start the infrastructure (PostgreSQL on port 5433, Redis, MinIO, Mailpit):
    ```bash
    docker compose up -d
    ```
@@ -60,6 +60,18 @@ javora-commerce/
 | Health check | http://localhost:8080/actuator/health |
 | Mailpit inbox | http://localhost:8025 |
 | MinIO console | http://localhost:9001 |
+
+## Development Accounts
+
+The `dev` profile creates an admin account on first start.
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@javora.local | Admin12345 |
+
+Customers can register at http://localhost:5173/register. Verification and password reset emails appear in Mailpit.
+
+In production set `JWT_SECRET` (at least 32 characters), `AUTH_COOKIE_SECURE=true`, and `APP_BOOTSTRAP_ADMIN_EMAIL` / `APP_BOOTSTRAP_ADMIN_PASSWORD` for the first admin.
 
 ## Common Commands
 
