@@ -15,6 +15,8 @@ logging:
     com.javora.commerce: DEBUG
 
 app:
+  catalog:
+    seed-demo-data: true
   auth:
     jwt-secret: dev-only-secret-change-me-0123456789abcdef
     cookie-secure: false

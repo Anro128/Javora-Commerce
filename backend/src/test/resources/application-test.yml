@@ -1,0 +1,8 @@
+app:
+  catalog:
+    seed-demo-data: false
+
+management:
+  health:
+    mail:
+      enabled: false

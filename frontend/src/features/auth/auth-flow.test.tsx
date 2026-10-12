@@ -8,6 +8,7 @@ import type { AuthResponse } from '@/features/auth/types'
 import { admin, customer, renderApp, signInAs, signOut } from '@/test/utils'
 
 vi.mock('@/features/auth/api')
+vi.mock('@/features/catalog/api')
 
 function sessionFor(user: AuthResponse['user']): AuthResponse {
   return { accessToken: 'access-token', tokenType: 'Bearer', expiresIn: 900, user }

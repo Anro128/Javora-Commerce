@@ -566,15 +566,25 @@ feat: phase 1 - authentication and user management
 - Tipe API frontend masih ditulis manual di `features/*/types.ts`; `gen:api` akan dipakai setelah DTO diberi anotasi `required` di OpenAPI.
 - Postgres Docker memakai port host **5433** karena port 5432 sering dipakai PostgreSQL lokal.
 
-- [ ] ✅ Commit `phase-1` → tag → push ke remote
+- [x] ✅ Commit `phase-1` → tag → push ke remote
 
 ### Fase 2 — Katalog & Inventori (Minggu 3–5)
-- [ ] **BE**: CRUD kategori (hierarki), produk + varian, upload gambar ke MinIO/S3
-- [ ] **BE**: Listing publik (filter, sort, pagination, pencarian), stok, cache Redis
-- [ ] **FE (admin)**: Tabel produk, form produk + varian + upload gambar, kelola kategori, stok
-- [ ] **FE (toko)**: Beranda, katalog dengan filter, detail produk dengan pilihan varian
+- [x] **BE**: CRUD kategori (hierarki), produk + varian, upload gambar ke MinIO/S3
+- [x] **BE**: Listing publik (filter, sort, pagination, pencarian), stok, cache Redis
+- [x] **FE (admin)**: Tabel produk, form produk + varian + upload gambar, kelola kategori, stok
+- [x] **FE (toko)**: Beranda, katalog dengan filter, detail produk dengan pilihan varian
 
-- [ ] ✅ Commit `phase-2` → tag → push ke remote
+**Catatan implementasi Fase 2**
+- Endpoint publik berada di `/api/v1/public/**` (`/public/categories`, `/public/products`, `/public/products/{slug}`); bearer token di jalur ini diabaikan sehingga token kedaluwarsa tidak memblokir toko.
+- Pencarian memakai `ILIKE` pada nama dan deskripsi (wildcard dari pengguna di-escape). Full-text search PostgreSQL ditunda sampai katalog cukup besar.
+- Cache Redis (TTL 10 menit) menyimpan pohon kategori dan konten produk; **stok sengaja tidak di-cache** dan dibaca langsung, sehingga perubahan stok langsung terlihat. Cache dibersihkan setiap kali admin mengubah katalog.
+- Produk tidak dihapus tetapi diarsipkan (`ARCHIVED`) agar pesanan lama tetap valid; varian dinonaktifkan, bukan dihapus.
+- Stok disimpan di tabel `inventory` terpisah dengan `version` (optimistic lock) dan `reserved_quantity` yang dipakai reservasi stok di Fase 3.
+- Gambar divalidasi dari signature file (JPEG/PNG/WebP, maks 5 MB, maks 8 per produk), bukan dari tipe yang dikirim klien. Hanya prefix `products/` yang dapat dibaca publik.
+- Atribut varian berformat JSONB ditunda; varian saat ini hanya punya nama (mis. "Size 42").
+- Di profil `dev`, katalog demo (6 kategori, 8 produk) dibuat otomatis bila database kosong (`app.catalog.seed-demo-data`).
+
+- [x] ✅ Commit `phase-2` → tag → push ke remote
 
 ### Fase 3 — Keranjang & Checkout (Minggu 6)
 - [ ] **BE**: Keranjang, integrasi ongkir, checkout preview, pembuatan order, reservasi stok (optimistic locking)

@@ -30,6 +30,15 @@ spring:
     port: ${MAIL_PORT:1025}
     username: ${MAIL_USERNAME:}
     password: ${MAIL_PASSWORD:}
+  cache:
+    type: redis
+    redis:
+      time-to-live: 10m
+      key-prefix: "javora::"
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   web:
     resources:
       add-mappings: false
@@ -41,6 +50,15 @@ app:
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
   mail:
     from: ${MAIL_FROM:no-reply@javora.local}
+  storage:
+    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+    access-key: ${MINIO_ROOT_USER:javora}
+    secret-key: ${MINIO_ROOT_PASSWORD:javora-secret}
+    bucket: ${MINIO_BUCKET:javora}
+    public-base-url: ${STORAGE_PUBLIC_URL:http://localhost:9000/javora}
+  catalog:
+    low-stock-threshold: 5
+    seed-demo-data: false
   auth:
     jwt-secret: ${JWT_SECRET:}
     access-token-ttl: 15m

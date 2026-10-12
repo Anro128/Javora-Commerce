@@ -19,6 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
 	private static final String AUTH_PREFIX = "/api/v1/auth/";
+	private static final String PUBLIC_PREFIX = "/api/v1/public/";
 
 	// Auth endpoints that require a logged in user; every other auth endpoint is public.
 	private static final Set<String> AUTHENTICATED_AUTH_PATHS = Set.of(
@@ -41,7 +42,7 @@ public class SecurityConfig {
 						.requestMatchers("/actuator/**").denyAll()
 						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 						.requestMatchers(AUTHENTICATED_AUTH_PATHS.toArray(String[]::new)).authenticated()
-						.requestMatchers(AUTH_PREFIX + "**", "/api/v1/public/**").permitAll()
+						.requestMatchers(AUTH_PREFIX + "**", PUBLIC_PREFIX + "**").permitAll()
 						.requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 						.requestMatchers("/api/**").authenticated()
 						// Everything else is the React SPA and its static assets.
@@ -49,14 +50,15 @@ public class SecurityConfig {
 		return http.build();
 	}
 
-	// A stale access token must not block public auth calls such as login or refresh.
+	// A stale access token must not block public calls such as browsing the shop, login, or refresh.
 	@Bean
 	BearerTokenResolver bearerTokenResolver() {
 		DefaultBearerTokenResolver delegate = new DefaultBearerTokenResolver();
 		return request -> {
 			String path = request.getRequestURI();
 			boolean publicAuthCall = path.startsWith(AUTH_PREFIX) && !AUTHENTICATED_AUTH_PATHS.contains(path);
-			return publicAuthCall ? null : delegate.resolve(request);
+			boolean publicCall = publicAuthCall || path.startsWith(PUBLIC_PREFIX);
+			return publicCall ? null : delegate.resolve(request);
 		};
 	}
 

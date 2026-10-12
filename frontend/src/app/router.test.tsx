@@ -3,6 +3,7 @@ import { beforeEach } from 'vitest'
 import { admin, renderApp, signInAs, signOut } from '@/test/utils'
 
 vi.mock('@/features/auth/api')
+vi.mock('@/features/catalog/api')
 
 describe('app routes', () => {
   beforeEach(() => {

@@ -127,8 +127,10 @@ describe('auth interceptors', () => {
 
     await apiClient.post('/auth/login', { email: 'a@b.c', password: 'x' })
     await apiClient.post('/auth/change-password', {})
+    await apiClient.get('/public/products')
 
     expect(calls[0].authorization).toBeNull()
     expect(calls[1].authorization).toBe('Bearer old-token')
+    expect(calls[2].authorization).toBeNull()
   })
 })

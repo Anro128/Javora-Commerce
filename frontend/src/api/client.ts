@@ -37,9 +37,12 @@ export function toApiError(error: unknown): ApiError {
 
 const AUTHENTICATED_AUTH_URLS = ['/auth/resend-verification', '/auth/change-password']
 
-// Public auth calls never carry a bearer token and are never retried after a refresh.
-function isPublicAuthCall(url?: string) {
-  return !!url && url.startsWith('/auth/') && !AUTHENTICATED_AUTH_URLS.includes(url)
+// Public calls never carry a bearer token and are never retried after a refresh.
+function isPublicCall(url?: string) {
+  if (!url) {
+    return false
+  }
+  return url.startsWith('/public/') || (url.startsWith('/auth/') && !AUTHENTICATED_AUTH_URLS.includes(url))
 }
 
 let refreshInFlight: Promise<AuthResponse> | null = null
@@ -62,7 +65,7 @@ type RetriableRequest = InternalAxiosRequestConfig & { _retried?: boolean }
 
 apiClient.interceptors.request.use((config) => {
   const { accessToken } = useAuthStore.getState()
-  if (accessToken && !isPublicAuthCall(config.url)) {
+  if (accessToken && !isPublicCall(config.url)) {
     config.headers.set('Authorization', `Bearer ${accessToken}`)
   }
   return config
@@ -74,7 +77,7 @@ apiClient.interceptors.response.use(
     const request = error instanceof AxiosError ? (error.config as RetriableRequest | undefined) : undefined
     const unauthorized = error instanceof AxiosError && error.response?.status === 401
 
-    if (unauthorized && request && !request._retried && !isPublicAuthCall(request.url)) {
+    if (unauthorized && request && !request._retried && !isPublicCall(request.url)) {
       request._retried = true
       try {
         const session = await refreshSession()

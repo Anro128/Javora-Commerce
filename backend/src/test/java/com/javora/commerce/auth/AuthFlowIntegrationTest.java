@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.javora.commerce.TestcontainersConfiguration;
+import com.javora.commerce.IntegrationTest;
 import com.javora.commerce.auth.repository.RefreshTokenRepository;
 import com.javora.commerce.common.util.TokenGenerator;
 import com.javora.commerce.notification.MailService;
@@ -25,18 +25,13 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-@Import(TestcontainersConfiguration.class)
-@SpringBootTest(properties = "management.health.mail.enabled=false")
-@AutoConfigureMockMvc
+@IntegrationTest
 class AuthFlowIntegrationTest {
 
 	private static final String PASSWORD = "Passw0rdLong";

@@ -5,15 +5,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Import(TestcontainersConfiguration.class)
-@SpringBootTest(properties = "management.health.mail.enabled=false")
-@AutoConfigureMockMvc
+@IntegrationTest
 @Testcontainers(disabledWithoutDocker = true)
 class JavoraCommerceApplicationTests {
 
